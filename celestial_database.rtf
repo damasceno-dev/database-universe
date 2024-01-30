@@ -1,0 +1,208 @@
+
+
+
+Instructions
+For this project, you need to log in to PostgreSQL with psql to create your database. Do that by entering psql --username=freecodecamp --dbname=postgres in the terminal. Make all the tests below pass to complete the project. Be sure to get creative, and have fun!
+Don't forget to connect to your database after you create it 😄
+Here's some ideas for other column and table names: description, has_life, is_spherical, age_in_millions_of_years, planet_types, galaxy_types, distance_from_earth.
+Notes:If you leave your virtual machine, your database may not be saved. You can make a dump of it by entering pg_dump -cC --inserts -U freecodecamp universe > universe.sql in a bash terminal (not the psql one). It will save the commands to rebuild your database in universe.sql. The file will be located where the command was entered. If it's anything inside the project folder, the file will be saved in the VM. You can rebuild the database by entering psql -U postgres < universe.sql in a terminal where the .sql file is.
+If you are saving your progress on freeCodeCamp.org, after getting all the tests to pass, follow the instructions above to save a dump of your database. Save the universe.sql file in a public repository and submit the URL to it on freeCodeCamp.org.
+
+
+
+CREATE DATABASE universe;
+
+
+CREATE TABLE galaxy (
+	galaxy_id SERIAL PRIMARY KEY,
+	name VARCHAR(30) NOT NULL UNIQUE,
+	apparent_magnitude NUMERIC NOT NULL,
+	diameter NUMERIC,
+	distance NUMERIC
+);
+
+
+CREATE TABLE star (
+	star_id SERIAL PRIMARY KEY,
+	name VARCHAR(30) NOT NULL UNIQUE,
+	galaxy_id INT NOT NULL,
+    spectral_type VARCHAR(10),
+    luminosity NUMERIC
+);
+
+ALTER TABLE star ADD FOREIGN KEY(galaxy_id) REFERENCES galaxy(galaxy_id);
+
+CREATE TABLE planet (
+	planet_id SERIAL PRIMARY KEY,
+	name VARCHAR(30) NOT NULL UNIQUE,
+	star_id INT NOT NULL,
+	mass NUMERIC,
+    radius NUMERIC
+);
+
+ALTER TABLE planet ADD FOREIGN KEY(star_id) REFERENCES star(star_id);
+
+CREATE TABLE moon (
+	moon_id SERIAL PRIMARY KEY,
+	name VARCHAR(30) NOT NULL UNIQUE,
+	planet_id INT NOT NULL,
+	diameter NUMERIC,
+    distance_from_planet NUMERIC
+);
+
+ALTER TABLE moon ADD FOREIGN KEY(planet_id) REFERENCES planet(planet_id);
+
+CREATE TABLE planet_info (
+	planet_info_id SERIAL PRIMARY KEY,
+	planet_id INT NOT NULL UNIQUE,
+	name VARCHAR(50) NOT NULL,
+	description TEXT,
+	has_life BOOLEAN,
+	is_spherical BOOLEAN,
+	age_in_millions_of_years INT,
+	number_of_moons INT
+);
+
+ALTER TABLE planet_info ADD FOREIGN KEY(planet_id) REFERENCES planet(planet_id);
+
+-- Populate galaxy table
+INSERT INTO galaxy (name, apparent_magnitude, diameter, distance) 
+VALUES 
+    ('Milky Way', -20.9, 100000, 0),
+    ('Andromeda', 3.44, 220000, 2540000),
+    ('Triangulum', 5.72, 60000, 3000000),
+    ('Pinwheel', 6.4, 70000, 2500000),
+    ('Messier 81', 6.94, 95000, 11600000),
+    ('Messier 83', 7.54, 55000, 14700000);
+
+-- Populate star table
+INSERT INTO star (name, galaxy_id, spectral_type, luminosity) 
+VALUES 
+    ('Sun', 1, 'G2V', 1),
+    ('Alpha Centauri A', 1, 'G2V', 1.1),
+    ('Alpha Centauri B', 1, 'K1V', 0.45),
+    ('Sirius', 1, 'A1V', 25.4),
+    ('Vega', 1, 'A0V', 40.12),
+    ('Betelgeuse', 1, 'M1-2Ia-Iab', 105000),
+    ('Rigel', 1, 'B8Ia', 120000),
+    ('Polaris', 1, 'F7Ib', 2000),
+    ('Antares', 1, 'M1.5Iab-Ib', 6500),
+    ('Aldebaran', 1, 'K5III', 518),
+    ('Spica', 1, 'B1III-IV', 12000),
+    ('Arcturus', 1, 'K0III', 170),
+    ('Proxima Centauri', 1, 'M5.5Ve', 0.0017);
+
+-- Populate planet table
+INSERT INTO planet (name, star_id, mass, radius)
+VALUES
+    ('Mercury', 1, 0.055, 0.383),
+    ('Venus', 1, 0.815, 0.949),
+    ('Earth', 1, 1, 1),
+    ('Mars', 1, 0.107, 0.532),
+    ('Jupiter', 1, 317.8, 11.209),
+    ('Saturn', 1, 95.2, 9.449),
+    ('Uranus', 1, 14.6, 4.007),
+    ('Neptune', 1, 17.2, 3.883),
+    ('Kepler-452b', 2, 5, 1.6),
+    ('HD 209458 b', 3, 0.69, 1.35),
+    ('TrES-4b', 4, 0.919, 1.706),
+    ('PSR B1620-26 b', 5, 2.5, 1.43);
+
+-- Populate moon table
+INSERT INTO moon (name, planet_id, diameter, distance_from_planet)
+VALUES
+    ('Luna', 3, 3474.8, 384400),
+    ('Phobos', 4, 22.2, 9378),
+    ('Deimos', 4, 12.4, 23460),
+    ('Ganymede', 5, 5262.4, 1070400),
+    ('Titan', 6, 5150, 1221870),
+    ('Europa', 5, 3121.6, 671034),
+    ('Io', 5, 3643.2, 421700),
+    ('Callisto', 5, 4820.6, 1882700),
+    ('Enceladus', 6, 504.2, 238037),
+    ('Triton', 8, 2706.8, 354759),
+    ('Charon', 9, 1208, 19571),
+    ('Titania', 8, 1577.8, 435840),
+    ('Rhea', 6, 763.8, 527040),
+    ('Iapetus', 6, 1468, 3560820),
+    ('Dione', 6, 560.4, 377396),
+    ('Ariel', 8, 1157.8, 191020),
+    ('Umbriel', 8, 1169.4, 266300),
+    ('Miranda', 8, 472, 129900),
+    ('Oberon', 8, 1522.8, 584270),
+    ('Proteus', 10, 420, 117647);
+
+INSERT INTO planet_info (planet_id, name, description, has_life, is_spherical, age_in_millions_of_years, number_of_moons)
+VALUES
+    (1,'Smallest', 'Mercury is the smallest planet in the Solar System and the closest to the Sun.', '0', '1', 4500, 0),
+    (2, 'Hottest', 'Venus is the second planet from the Sun and the hottest planet in our solar system.', '0', '1', 4500, 0),
+    (3, 'Life', 'Earth is the third planet from the Sun and the only known planet to support life.', '1', '1', 4500, 1),
+    (4,'Color', 'Mars is often called the Red Planet due to its reddish appearance.', '0', '1', 4500, 2),
+    (5,'Larger', 'Jupiter is the largest planet in our Solar System and has a strong magnetic field.', '0', '1', 4500, 79),
+    (6,'Ice', 'Saturn is known for its prominent ring system, composed mostly of ice particles.', '0', '1', 4500, 82),
+    (7, 'Unique', 'Uranus is the seventh planet from the Sun and has a unique rotation axis nearly parallel to its orbit.', '0', '1', 4500, 27),
+    (8, 'Farthest', 'Neptune is the eighth and farthest known planet from the Sun in our Solar System.', '0', '1', 4500, 14),
+    (9, 'Habitable', 'Kepler-452b is an exoplanet orbiting within the habitable zone of the star Kepler-452.', '0', '1', 6500, 0),
+    (10, 'Osiris', 'HD 209458 b, also known as Osiris, is an exoplanet discovered by the radial velocity method.', '0', '1', 5000, 1),
+    (11, 'Extrasolar', 'TrES-4b is an extrasolar planet orbiting the star GSC 02652-01324.', '0', '1', 8000, 0),
+    (12,'Expoplanet', 'PSR B1620-26 b is a gas giant exoplanet that orbits the binary star PSR B1620-26.', '0', '1', 10000, 1);
+
+Complete the tasks below
+
+OK You should create a database named universe
+
+OK Be sure to connect to your database with \c universe. Then, you should add tables named galaxy, star, planet, and moon
+
+OK Each table should have a primary key
+
+OK Each primary key should automatically increment
+
+OK Each table should have a name column
+
+OK You should use the INT data type for at least two columns that are not a primary or foreign key
+
+OK You should use the NUMERIC data type at least once
+
+OK You should use the TEXT data type at least once
+
+OK You should use the BOOLEAN data type on at least two columns
+
+OK Each "star" should have a foreign key that references one of the rows in galaxy
+
+OK Each "planet" should have a foreign key that references one of the rows in star
+
+OK Each "moon" should have a foreign key that references one of the rows in planet
+
+OK Your database should have at least five tables
+
+OK Each table should have at least three rows
+
+OK The galaxy and star tables should each have at least six rows
+
+OK The planet table should have at least 12 rows
+
+OK The moon table should have at least 20 rows
+
+OK Each table should have at least three columns
+
+OK The galaxy, star, planet, and moon tables should each have at least five columns
+
+OK At least two columns per table should not accept NULL values
+
+OK At least one column from each table should be required to be UNIQUE
+
+OK All columns named name should be of type VARCHAR
+
+OK Each primary key column should follow the naming convention table_name_id. For example, the moon table should have a primary key column named moon_id
+
+OK Each foreign key column should have the same name as the column it is referencing
+
+
+
+
+Instructions
+For this project, you need to log in to PostgreSQL with psql to create your database. Do that by entering psql --username=freecodecamp --dbname=postgres in the terminal. Make all the tests below pass to complete the project. Be sure to get creative, and have fun!
+Don't forget to connect to your database after you create it 😄
+Here's some ideas for other column and table names: description, has_life, is_spherical, age_in_millions_of_years, planet_types, galaxy_types, distance_from_earth.
+Notes:If you leave your virtual machine, your database may not be saved. You can make a dump of it by entering pg_dump -cC --inserts -U freecodecamp universe > universe.sql in a bash terminal (not the psql one). It will save the commands to rebuild your database in universe.sql. The file will be located where the command was entered. If it's anything inside the project folder, the file will be saved in the VM. You can rebuild the database by entering psql -U postgres < universe.sql in a terminal where the .sql file is.
+If you are saving your progress on freeCodeCamp.org, after getting all the tests to pass, follow the instructions above to save a dump of your database. Save the universe.sql file in a public repository and submit the URL to it on freeCodeCamp.org.
